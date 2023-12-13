@@ -25,6 +25,7 @@
 
     <main class="content">
         <hr>
+<<<<<<< HEAD
 
         {% for shared_user, shared_inventory in shared_inventories.items() %}
         <section class="Shared Inventory Table">
@@ -39,6 +40,21 @@
                 <button onclick="applyFilters()">Apply Filters</button>
                 <button onclick="resetFilters()">Reset Filters</button>
             </div>
+=======
+        <div class="filters">
+            <label for="itemName">Search by Item Name:</label>
+            <input type="text" id="itemName" placeholder="Enter item name">
+
+            <label for="minQuantity">Minimum Quantity:</label>
+            <input type="number" id="minQuantity" placeholder="Min quantity">
+
+            <button onclick="applyFilters()">Apply Filters</button>
+            <button onclick="resetFilters()">Reset Filters</button>
+        </div>
+        {% for shared_user, shared_inventory in shared_inventories.items() %}
+        <section class="Shared Inventory Table">
+            <h2>{{ shared_user }}'s Shared Inventory</h2>
+>>>>>>> upstream/main
             <table>
                 <thead>
                     <tr>
@@ -109,4 +125,8 @@
 	</script>
 </body>
 
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> upstream/main
