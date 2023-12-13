@@ -185,9 +185,13 @@ def shared_inventory():
     return render_template('shared_inventory.html', shared_inventories=shared_inventories_data)
 
 @app.route('/restock')
-def restock():
-    return render_template('index.html')
+def restock(): 
 
+   # restock_min = 10  # restock minimum
+   # restock_items = Inventory.query.filter(Inventory.quantity < restock_min).all()
+    
+    return render_template('restock.html')#, restock_items=restock_items)
+    
 @app.route('/add_row', methods=['POST'])
 def add_row():
     data = request.json
