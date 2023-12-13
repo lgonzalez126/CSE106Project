@@ -1,19 +1,11 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8" />
-
   <title>The PJL Inventory Management System</title>
-
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-
   <meta name="description" content="" />
-
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
 </head>
 
 <body onload="getInventory()">
@@ -42,38 +34,19 @@
 		<button onclick="resetFilters()">Reset Filters</button>
 	</div>
     <section class="Inventory Table">
-   	  <table>
-		  <thead>
+   	  <table id="inventoryTable">
+		<thead>
 			<tr>
 			  <th>ItemID</th>
 			  <th>UserID</th>
 			  <th>ItemName</th>
 			  <th>Quantity</th>
+			  <th>Restock Amount</th>
 			  <th>Description</th>
 			</tr>
 		  </thead>
 		  <tbody id="invtable">
-			<tr>
-			  <td>1</td>
-			  <td>{{ username }}</td>
-			  <td>Item A</td>
-			  <td>5</td>
-			  <td>Description of Item A</td>
-			</tr>
-			<tr>
-			  <td>2</td>
-			  <td>{{ username }}</td>
-			  <td>Item B</td>
-			  <td>10</td>
-			  <td>Description of Item B</td>
-			</tr>
-			<tr id="editableRow">
-				<td><button class="addrow" onclick="submitData()">Submit</button></td>
-				<td>{{ username }}</td>
-				<td contenteditable="true"></td>
-				<td contenteditable="true"></td>
-				<td contenteditable="true"></td>
-			  </tr>
+			
 		  </tbody>
 		</table>
     </section>
@@ -83,11 +56,44 @@
       <p>&copy; Paul, Luis & Jack, we deserve full points</p>
   </footer>
 
-  
-
-</body>
-
 	<script>
+
+		// Apply filters to the table:
+		function applyFilters() {
+			const itemNameFilter = document.getElementById('itemName').value.toLowerCase();
+			const minQuantityFilter = parseInt(document.getElementById('minQuantity').value, 10);
+
+			const table = document.getElementById('inventoryTable');
+			const rows = table.getElementsByTagName('tr');
+
+			for (let i = 1; i < rows.length; i++) {
+				const cells = rows[i].getElementsByTagName('td');
+				const itemName = cells[2].innerText.toLowerCase();
+				const quantity = parseInt(cells[3].innerText, 10);
+
+				const itemNameMatches = itemName.includes(itemNameFilter);
+				const quantityMatches = isNaN(minQuantityFilter) || quantity >= minQuantityFilter;
+
+				if (itemNameMatches && quantityMatches) {
+					rows[i].style.display = '';
+				} else {
+					rows[i].style.display = 'none';
+				}
+			}
+		}
+
+			// Reset filters and show all rows:
+			function resetFilters() {
+				const table = document.getElementById('inventoryTable');
+				const rows = table.getElementsByTagName('tr');
+
+				for (let i = 1; i < rows.length; i++) {
+					rows[i].style.display = '';
+				}
+
+				document.getElementById('itemName').value = '';
+				document.getElementById('minQuantity').value = '';
+			}
 
 		//Get Data
 		let getInventory = () => {
@@ -98,7 +104,7 @@
 			.then(data => {
 				var parentElement = document.getElementById('invtable');
 
-				while (parentElement.childNodes.length > 2) {
+				while (parentElement.childNodes.length > 1) {
 					parentElement.removeChild(parentElement.firstChild);
 				}
 
@@ -107,31 +113,34 @@
 					const id = data.user_inventory[key]['id']
 					const itemname = data.user_inventory[key]['itemName']
 					const quantity = data.user_inventory[key]['quantity']
+					const restock = data.user_inventory[key]['restock']
 					const description = data.user_inventory[key]['description']
-					const markup = `<tr><td>${id}</td><td>{{ username }}</td><td>${itemname}</td><td>${quantity}</td><td>${description}</td></tr>`
+					console.log("check2")
+					if((quantity) <= (restock))
+					{
+						console.log("check1")
+						const markup = `<tr><td>${id}</td><td>{{ username }}</td><td  >${itemname}</td><td  >${quantity}</td><td  >${restock}</td><td  >${description}</td></tr>`
 
-					document.getElementById('invtable').lastElementChild.insertAdjacentHTML('beforebegin', markup)
+						document.getElementById('invtable').insertAdjacentHTML('afterbegin', markup)
+					}
 				}
 			})
 		}
-	 
-	 //Add row to table:
-	 function submitData() {
-		const newRow = document.getElementById('editableRow');
-		const cells = newRow.getElementsByTagName('td');
-		const data = Array.from(cells).map(cell => cell.innerText);
-		
-		fetch('/add_row', {
-		method: 'POST',
-		body: JSON.stringify(data),
-		headers: {
-			'Content-Type': 'application/json'
-		}
-		})
 
-		document.getElementById('editableRow').innerHTML = `<td><button class="addrow" onclick="submitData()">Submit</button></td><td>{{ username }}</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td>`
+	//Edit table row:
+	function editRow(button) {
+		var row = button.parentNode.parentNode;
+		var cells = row.getElementsByTagName("td");
+
+		var rowData = Array.from(cells).map(cell => cell.innerText);
 		
-		getInventory();
+		fetch('/edit_row', {
+			method: 'PUT',
+			body: JSON.stringify(rowData),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
 	}
 	</script>
 </html>

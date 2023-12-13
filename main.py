@@ -196,7 +196,7 @@ def shared_inventory():
 
 @app.route('/restock')
 def restock():
-    return render_template('index.html')
+    return render_template('restock.html', username=current_user.username)
 
 @app.route('/registration', methods=['Get'])
 def registration():
